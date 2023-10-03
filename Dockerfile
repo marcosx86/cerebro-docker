@@ -11,15 +11,20 @@ RUN  apt-get update \
  && sed -i '/<appender-ref ref="FILE"\/>/d' /opt/cerebro/conf/logback.xml
 
 #FROM openjdk:11-jre-slim
-FROM azul/zulu-openjdk-alpine:11-latest
+FROM azul/zulu-openjdk-debian:11-latest
 
 COPY --from=builder /opt/cerebro /opt/cerebro
 
-RUN addgroup -g 1000 cerebro \
- && adduser -S -H -s /bin/false -G cerebro -u 1000 cerebro \
+RUN addgroup -gid 1000 cerebro \
+ && adduser -q --system --no-create-home --disabled-login -gid 1000 -uid 1000 cerebro \
  && chown -R root:root /opt/cerebro \
  && chown -R cerebro:cerebro /opt/cerebro/logs \
  && chown cerebro:cerebro /opt/cerebro
+# RUN addgroup -g 1000 cerebro \
+#  && adduser -S -H -s /bin/false -G cerebro -u 1000 cerebro \
+#  && chown -R root:root /opt/cerebro \
+#  && chown -R cerebro:cerebro /opt/cerebro/logs \
+#  && chown cerebro:cerebro /opt/cerebro
 
 WORKDIR /opt/cerebro
 USER cerebro
