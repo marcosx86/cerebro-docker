@@ -1,4 +1,5 @@
-FROM openjdk:11-jre-slim as builder
+#FROM openjdk:11-jre-slim as builder
+FROM azul/zulu-openjdk-debian:11-latest as builder
 
 ARG CEREBRO_VERSION=0.9.4
 
@@ -9,12 +10,13 @@ RUN  apt-get update \
   | tar xzv --strip-components 1 -C /opt/cerebro \
  && sed -i '/<appender-ref ref="FILE"\/>/d' /opt/cerebro/conf/logback.xml
 
-FROM openjdk:11-jre-slim
+#FROM openjdk:11-jre-slim
+FROM azul/zulu-openjdk-alpine:11-latest
 
 COPY --from=builder /opt/cerebro /opt/cerebro
 
-RUN addgroup -gid 1000 cerebro \
- && adduser -q --system --no-create-home --disabled-login -gid 1000 -uid 1000 cerebro \
+RUN addgroup -g 1000 cerebro \
+ && adduser -S -H -s /bin/false -G cerebro -u 1000 cerebro \
  && chown -R root:root /opt/cerebro \
  && chown -R cerebro:cerebro /opt/cerebro/logs \
  && chown cerebro:cerebro /opt/cerebro
